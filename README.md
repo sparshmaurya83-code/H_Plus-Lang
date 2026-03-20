@@ -91,3 +91,16 @@ To keep H+ simple, fast, and lightweight:
 - packages are built-in and resolved without a heavy dependency system
 - syntax stays small and readable
 - tooling is minimal but practical
+
+
+## Syntax Highlighting in VS Code
+
+1. Open VS Code settings (`Ctrl + ,`)
+2. Search for `files.associations`
+3. Click "Edit in settings.json"
+4. Add:
+
+```json
+"files.associations": {
+  "*.h+": "hplus"
+}

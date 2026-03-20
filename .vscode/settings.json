@@ -1,0 +1,34 @@
+{
+  "files.associations": {
+    "*.h+": "hplus"
+  },
+  "[hplus]": {
+    "editor.defaultFormatter": null
+  },
+  "editor.tokenColorCustomizations": {
+    "[*]": {  // applies to all themes, or specify your theme name
+      "textMateRules": [
+        {
+          "scope": "keyword.control.hplus",
+          "settings": {
+            "foreground": "#FF79C6",  // pinkish for keywords
+            "fontStyle": "bold"
+          }
+        },
+        {
+          "scope": "string.quoted.double.hplus",
+          "settings": {
+            "foreground": "#F1FA8C"  // yellow for strings
+          }
+        },
+        {
+          "scope": "comment.line.number-sign.hplus",
+          "settings": {
+            "foreground": "#6272A4",
+            "fontStyle": "italic"
+          }
+        }
+      ]
+    }
+  }
+}
