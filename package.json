@@ -1,0 +1,30 @@
+{
+  "name": "hplus-language-support",
+  "displayName": "H+ Language Support",
+  "description": "Syntax highlighting for the H+ programming language",
+  "version": "0.1.0",
+  "publisher": "sparsh",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "hplus",
+        "aliases": ["H+", "hplus"],
+        "extensions": [".h+"],
+        "configuration": "./syntaxes/hplus-language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "hplus",
+        "scopeName": "source.hplus",
+        "path": "./syntaxes/hplus.tmLanguage.json"
+      }
+    ]
+  }
+}

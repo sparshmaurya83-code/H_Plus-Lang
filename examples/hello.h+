@@ -1,12 +1,14 @@
-say "Hello from H+ by Sparsh! 🔥"
-
+# H+ demo
 use math
-use http
+use text
+use files
 
-when true {
-    say "H+ is simpler than Python"
-} otherwise {
-    say "This never runs"
-}
+say "Welcome to H+"
+say math.add(5, 3)
+say math.fib(10)
 
-say "Packages work on Day 1! 🎉"
+let name = "h+"
+say text.upper(name)
+say text.len("simple")
+
+say files.exists("README.md")
