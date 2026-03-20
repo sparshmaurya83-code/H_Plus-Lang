@@ -1,0 +1,12 @@
+say "Hello from H+ by Sparsh! 🔥"
+
+use math
+use http
+
+when true {
+    say "H+ is simpler than Python"
+} otherwise {
+    say "This never runs"
+}
+
+say "Packages work on Day 1! 🎉"

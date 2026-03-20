@@ -1,0 +1,10 @@
+[package]
+name = "hplus"
+version = "0.1.0"
+edition = "2021"
+description = "H+ (Hyper+) — say, when, use. World's simplest language!"
+license = "MIT"
+authors = ["Sparsh <you>"]
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"] }
