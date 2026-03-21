@@ -12,3 +12,9 @@ say text.upper(name)
 say text.len("simple")
 
 say files.exists("README.md")
+
+if files.exists("hello.hplus") {
+    say "This file exists!"
+} else {
+    say "This file does not exist."
+}
