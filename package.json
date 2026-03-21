@@ -1,7 +1,7 @@
 {
   "name": "hplus-language-support",
   "displayName": "H+ Language Support",
-  "description": "Beautiful syntax highlighting for H+ (Hyper+) — the simplest programming language ever (say, when, use, .h+ files)",
+  "description": "Syntax highlighting for H+ (Hyper+) — say, when, use",
   "version": "0.0.1",
   "publisher": "sparshmaurya83",
   "icon": "icon.png",
@@ -9,7 +9,7 @@
     "vscode": "^1.85.0"
   },
   "categories": ["Programming Languages"],
-  "keywords": ["hplus", "hyper+", "syntax", "highlighting", "language"],
+  "keywords": ["hplus", "hyper+", "syntax", "highlighting"],
   "contributes": {
     "languages": [
       {
