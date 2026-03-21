@@ -1,75 +1,15 @@
 {
   "name": "hplus-language-support",
   "displayName": "H+ Language Support",
-  "description": "Syntax highlighting and basic support for H+ (Hyper+) programming language",
+  "description": "Syntax highlighting + support for H+ (Hyper+) programming language (.h+ files)",
   "version": "0.0.1",
   "publisher": "sparsh",
   "icon": "icon.png",
   "engines": {
     "vscode": "^1.85.0"
   },
-  "categories": [
-    "Programming Languages"
-  ],
-  "keywords": [
-    "hplus",
-    "hyper+",
-    "language",
-    "syntax",
-    "highlighting"
-  ],
-  "activationEvents": [
-    "onLanguage:hplus"
-  ],
-  "main": "./out/extension.js",
-  "contributes": {
-    "languages": [
-      {
-        "id": "hplus",
-        "aliases": [
-          "H+",
-          "Hyper+"
-        ],
-        "extensions": [
-          ".h+"
-        ],
-        "configuration": "./language-configuration.json"
-      }
-    ],
-    "grammars": [
-      {
-        "language": "hplus",
-        "scopeName": "source.hplus",
-        "path": "./syntaxes/hplus.tmLanguage.json"
-      }
-    ]
-  },
-  "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./"
-  },
-  "devDependencies": {
-    "@types/vscode": "^1.85.0",
-    "@types/node": "20.x",
-    "typescript": "^5.0.0"
-  }
-}
-
-{
-  "name": "hplus-language-support",
-  "displayName": "H+ Language Support",
-  "description": "Syntax highlighting for H+ (Hyper+) programming language",
-  "version": "0.0.1",
-  "publisher": "sparshmaurya83",
-  "icon": "icon.png",
-  "engines": {
-    "vscode": "^1.85.0"
-  },
-  "categories": [
-    "Programming Languages"
-  ],
-  "keywords": ["hplus", "hyper+", "syntax", "highlighting"],
+  "categories": ["Programming Languages"],
+  "keywords": ["hplus", "hyper+", "syntax", "highlighting", "language"],
   "contributes": {
     "languages": [
       {
