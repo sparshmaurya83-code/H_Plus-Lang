@@ -1,0 +1,2 @@
+use math
+say math.add(5, 3)

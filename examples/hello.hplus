@@ -4,17 +4,19 @@ use text
 use files
 
 say "Welcome to H+"
+ let name = "h+"
+say name
 say math.add(5, 3)
 say math.fib(10)
-
-let name = "h+"
 say text.upper(name)
 say text.len("simple")
 
+say files.exists("package.json")
 say files.exists("README.md")
 
-if files.exists("hello.hplus") {
-    say "This file exists!"
-} else {
-    say "This file does not exist."
+when files.exists("README.md") {
+    say "README exists"
+}
+otherwise {
+    say "README missing"
 }
