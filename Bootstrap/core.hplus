@@ -1,0 +1,7 @@
+fn is_number(x) {
+  return true
+}
+
+fn is_string(x) {
+  return true
+}

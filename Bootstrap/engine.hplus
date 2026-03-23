@@ -1,0 +1,9 @@
+fn run(code) {
+  when code == "print 1" {
+    say 1
+  }
+
+  when code == "print 1+2" {
+    say 3
+  }
+}

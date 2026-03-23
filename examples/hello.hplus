@@ -1,22 +1,30 @@
-# H+ demo
-use math
-use text
-use files
+use std::env;
+use std::fs;
 
-say "Welcome to H+"
- let name = "h+"
-say name
-say math.add(5, 3)
-say math.fib(10)
-say text.upper(name)
-say text.len("simple")
+mod lexer;
+mod parser;
+mod ast;
+mod interpreter;
 
-say files.exists("package.json")
-say files.exists("README.md")
+use lexer::tokenize;
+use parser::Parser;
+use interpreter::Interpreter;
 
-when files.exists("README.md") {
-    say "README exists"
-}
-otherwise {
-    say "README missing"
+fn main() {
+    let args: Vec<String> = env::args().collect();
+
+    if args.len() < 2 {
+        println!("Usage: hplus <file.hplus>");
+        return;
+    }
+
+    let code = fs::read_to_string(&args[1])
+        .expect("Failed to read file");
+
+    let tokens = tokenize(&code);
+    let mut parser = Parser::new(tokens);
+    let ast = parser.parse();
+
+    let mut interpreter = Interpreter::new();
+    interpreter.run(ast);
 }

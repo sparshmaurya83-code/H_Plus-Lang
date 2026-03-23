@@ -1,0 +1,7 @@
+fn call(name, arg) {
+  when name == "double" {
+    return arg + arg
+  }
+
+  return 0
+}

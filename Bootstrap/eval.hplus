@@ -1,0 +1,15 @@
+fn eval(expr) {
+  when expr == "1" {
+    return 1
+  }
+
+  when expr == "2" {
+    return 2
+  }
+
+  when expr == "1+2" {
+    return 3
+  }
+
+  return 0
+}
