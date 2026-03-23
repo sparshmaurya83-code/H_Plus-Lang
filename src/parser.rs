@@ -12,11 +12,19 @@ impl Parser {
     }
 
     fn peek(&self) -> &Token {
-        &self.tokens[self.pos]
+        self.tokens.get(self.pos).unwrap_or(&Token::EOF)
     }
 
     fn advance(&mut self) {
         self.pos += 1;
+    }
+
+    fn expect(&mut self, expected: &Token) {
+        if std::mem::discriminant(self.peek()) == std::mem::discriminant(expected) {
+            self.advance();
+        } else {
+            panic!("Expected {:?}, got {:?}", expected, self.peek());
+        }
     }
 
     pub fn parse(&mut self) -> Vec<Stmt> {
@@ -35,135 +43,155 @@ impl Parser {
 
     fn parse_stmt(&mut self) -> Option<Stmt> {
         match self.peek() {
+            Token::Fn => self.parse_function(),
+            Token::Return => self.parse_return(),
             Token::Say => {
                 self.advance();
                 Some(Stmt::Say(self.parse_expr()?))
             }
-
             Token::Let => {
                 self.advance();
-                if let Token::Identifier(name) = self.peek().clone() {
-                    self.advance();
-                    self.advance(); // =
-                    Some(Stmt::Let(name, self.parse_expr()?))
-                } else {
-                    None
-                }
+                let name = match self.peek().clone() {
+                    Token::Identifier(n) => {
+                        self.advance();
+                        n
+                    }
+                    _ => return None,
+                };
+                self.expect(&Token::Equal);
+                Some(Stmt::Let(name, self.parse_expr()?))
             }
-
-            Token::Use => {
-                self.advance();
-                if let Token::Identifier(name) = self.peek().clone() {
-                    self.advance();
-                    Some(Stmt::Use(name))
-                } else {
-                    None
-                }
-            }
-
+            Token::Identifier(_) => self.parse_assignment(),
+            Token::LBrace => Some(Stmt::Block(self.parse_block()?)),
             Token::When => self.parse_when(),
-
             _ => None,
         }
     }
 
+    fn parse_function(&mut self) -> Option<Stmt> {
+        self.advance();
+
+        let name = match self.peek().clone() {
+            Token::Identifier(n) => {
+                self.advance();
+                n
+            }
+            _ => return None,
+        };
+
+        self.expect(&Token::LParen);
+
+        let mut params = vec![];
+        while !matches!(self.peek(), Token::RParen) {
+            if let Token::Identifier(p) = self.peek().clone() {
+                params.push(p);
+                self.advance();
+            }
+
+            if matches!(self.peek(), Token::Comma) {
+                self.advance();
+            }
+        }
+
+        self.expect(&Token::RParen);
+        self.expect(&Token::LBrace);
+
+        let body = self.parse_block()?;
+
+        Some(Stmt::Function { name, params, body })
+    }
+
+    fn parse_return(&mut self) -> Option<Stmt> {
+        self.advance();
+
+        if matches!(self.peek(), Token::RBrace) {
+            return Some(Stmt::Return(None));
+        }
+
+        Some(Stmt::Return(Some(self.parse_expr()?)))
+    }
+
+    fn parse_assignment(&mut self) -> Option<Stmt> {
+        let name = match self.peek().clone() {
+            Token::Identifier(n) => n,
+            _ => return None,
+        };
+
+        self.advance();
+        self.expect(&Token::Equal);
+
+        Some(Stmt::Assign(name, self.parse_expr()?))
+    }
+
     fn parse_when(&mut self) -> Option<Stmt> {
         self.advance();
-        let condition = self.parse_expr()?;
+        let cond = self.parse_expr()?;
 
-        self.advance(); // {
+        self.expect(&Token::LBrace);
+        let then_block = Stmt::Block(self.parse_block()?);
 
-        let mut then_block = vec![];
-        while !matches!(self.peek(), Token::RBrace) {
+        Some(Stmt::When(cond, Box::new(then_block), None))
+    }
+
+    fn parse_block(&mut self) -> Option<Vec<Stmt>> {
+        let mut stmts = vec![];
+
+        while !matches!(self.peek(), Token::RBrace | Token::EOF) {
             if let Some(stmt) = self.parse_stmt() {
-                then_block.push(stmt);
+                stmts.push(stmt);
             } else {
                 self.advance();
             }
         }
 
-        self.advance(); // }
-
-        let mut else_block = None;
-
-        if matches!(self.peek(), Token::Otherwise) {
-            self.advance();
-            self.advance(); // {
-
-            let mut block = vec![];
-            while !matches!(self.peek(), Token::RBrace) {
-                if let Some(stmt) = self.parse_stmt() {
-                    block.push(stmt);
-                } else {
-                    self.advance();
-                }
-            }
-
-            self.advance();
-            else_block = Some(block);
-        }
-
-        Some(Stmt::When(condition, then_block, else_block))
+        self.expect(&Token::RBrace);
+        Some(stmts)
     }
 
     fn parse_expr(&mut self) -> Option<Expr> {
-        let left = self.parse_primary()?;
+        let mut expr = self.parse_primary()?;
 
-        if let Token::Plus = self.peek() {
-            self.advance();
-            let right = self.parse_primary()?;
-            return Some(Expr::Binary(Box::new(left), Operator::Plus, Box::new(right)));
+        if matches!(self.peek(), Token::LParen) {
+            expr = self.finish_call(expr)?;
         }
 
-        Some(left)
+        Some(expr)
+    }
+
+    fn finish_call(&mut self, callee: Expr) -> Option<Expr> {
+        self.expect(&Token::LParen);
+
+        let mut args = vec![];
+        while !matches!(self.peek(), Token::RParen) {
+            args.push(self.parse_expr()?);
+
+            if matches!(self.peek(), Token::Comma) {
+                self.advance();
+            }
+        }
+
+        self.expect(&Token::RParen);
+
+        Some(Expr::Call {
+            callee: Box::new(callee),
+            args,
+        })
     }
 
     fn parse_primary(&mut self) -> Option<Expr> {
         match self.peek().clone() {
-            Token::Identifier(name) => {
-                self.advance();
-
-                if matches!(self.peek(), Token::Dot) {
-                    self.advance();
-
-                    if let Token::Identifier(func) = self.peek().clone() {
-                        self.advance();
-
-                        self.advance(); // (
-
-                        let mut args = vec![];
-
-                        while !matches!(self.peek(), Token::RParen) {
-                            if let Some(arg) = self.parse_expr() {
-                                args.push(arg);
-                            } else {
-                                self.advance();
-                            }
-                        }
-
-                        self.advance(); // )
-
-                        return Some(Expr::Call {
-                            module: name,
-                            function: func,
-                            args,
-                        });
-                    }
-                }
-
-                Some(Expr::Variable(name))
-            }
-
-            Token::String(s) => {
-                self.advance();
-                Some(Expr::String(s))
-            }
-
             Token::Number(n) => {
                 self.advance();
                 Some(Expr::Number(n))
             }
-
+            Token::String(s) => {
+                self.advance();
+                Some(Expr::String(s))
+            }
+            Token::Identifier(name) => {
+                self.advance();
+                Some(Expr::Variable(name))
+            }
             _ => None,
         }
     }

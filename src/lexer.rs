@@ -17,6 +17,7 @@ pub enum Token {
     Less,
 
     Dot,
+    Comma,
     LParen,
     RParen,
     LBrace,
@@ -27,39 +28,97 @@ pub enum Token {
 
 pub fn tokenize(input: &str) -> Vec<Token> {
     let mut tokens = vec![];
+    let mut chars = input.chars().peekable();
 
-    for word in input.split_whitespace() {
-        let token = match word {
-            "say" => Token::Say,
-            "let" => Token::Let,
-            "when" => Token::When,
-            "otherwise" => Token::Otherwise,
-            "use" => Token::Use,
+    while let Some(&c) = chars.peek() {
+        match c {
+            // Skip whitespace
+            ' ' | '\n' | '\t' | '\r' => {
+                chars.next();
+            }
 
-            "{" => Token::LBrace,
-            "}" => Token::RBrace,
-            "(" => Token::LParen,
-            ")" => Token::RParen,
-            "." => Token::Dot,
+            // Single-character tokens
+            '{' => { tokens.push(Token::LBrace); chars.next(); }
+            '}' => { tokens.push(Token::RBrace); chars.next(); }
+            '(' => { tokens.push(Token::LParen); chars.next(); }
+            ')' => { tokens.push(Token::RParen); chars.next(); }
+            '.' => { tokens.push(Token::Dot); chars.next(); }
+            ',' => { tokens.push(Token::Comma); chars.next(); }
+            '+' => { tokens.push(Token::Plus); chars.next(); }
+            '>' => { tokens.push(Token::Greater); chars.next(); }
+            '<' => { tokens.push(Token::Less); chars.next(); }
 
-            "+" => Token::Plus,
-            "==" => Token::EqualEqual,
-            "=" => Token::Equal,
-            ">" => Token::Greater,
-            "<" => Token::Less,
-
-            _ => {
-                if word.starts_with("\"") && word.ends_with("\"") {
-                    Token::String(word.trim_matches('"').to_string())
-                } else if let Ok(n) = word.parse::<f64>() {
-                    Token::Number(n)
+            // = and ==
+            '=' => {
+                chars.next();
+                if let Some('=') = chars.peek() {
+                    chars.next();
+                    tokens.push(Token::EqualEqual);
                 } else {
-                    Token::Identifier(word.to_string())
+                    tokens.push(Token::Equal);
                 }
             }
-        };
 
-        tokens.push(token);
+            // Strings
+            '"' => {
+                chars.next(); // skip opening quote
+                let mut value = String::new();
+
+                while let Some(&ch) = chars.peek() {
+                    if ch == '"' {
+                        break;
+                    }
+                    value.push(ch);
+                    chars.next();
+                }
+
+                chars.next(); // closing quote
+                tokens.push(Token::String(value));
+            }
+
+            // Numbers
+            '0'..='9' => {
+                let mut number = String::new();
+
+                while let Some(&ch) = chars.peek() {
+                    if ch.is_numeric() || ch == '.' {
+                        number.push(ch);
+                        chars.next();
+                    } else {
+                        break;
+                    }
+                }
+
+                if let Ok(n) = number.parse::<f64>() {
+                    tokens.push(Token::Number(n));
+                }
+            }
+
+            // Identifiers & keywords
+            _ => {
+                let mut ident = String::new();
+
+                while let Some(&ch) = chars.peek() {
+                    if ch.is_alphanumeric() || ch == '_' {
+                        ident.push(ch);
+                        chars.next();
+                    } else {
+                        break;
+                    }
+                }
+
+                let token = match ident.as_str() {
+                    "say" => Token::Say,
+                    "let" => Token::Let,
+                    "when" => Token::When,
+                    "otherwise" => Token::Otherwise,
+                    "use" => Token::Use,
+                    _ => Token::Identifier(ident),
+                };
+
+                tokens.push(token);
+            }
+        }
     }
 
     tokens.push(Token::EOF);
